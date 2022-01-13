@@ -17,8 +17,20 @@ void get_URL(const string &host, const string &path) {
     // (not just one call to read() -- everything) until you reach
     // the "eof" (end of file).
 
-    cerr << "Function called: get_URL(" << host << ", " << path << ").\n";
-    cerr << "Warning: get_URL() has not been implemented yet.\n";
+    // cerr << "Function called: get_URL(" << host << ", " << path << ").\n";
+    // cerr << "Warning: get_URL() has not been implemented yet.\n";
+    TCPSocket client;
+    client.connect(Address(host, "http"));
+    string message = "GET " + path + " HTTP/1.1\r\nHost: " + 
+                    host + " \r\nConnection: close\r\n\r\n";
+    client.write(message);
+    client.shutdown(SHUT_WR);
+    
+    while (!client.eof()) {  // polling
+        cout << client.read();
+    }
+    client.close();
+    return;
 }
 
 int main(int argc, char *argv[]) {
@@ -35,7 +47,6 @@ int main(int argc, char *argv[]) {
             cerr << "\tExample: " << argv[0] << " stanford.edu /class/cs144\n";
             return EXIT_FAILURE;
         }
-
         // Get the command-line arguments.
         const string host = argv[1];
         const string path = argv[2];
